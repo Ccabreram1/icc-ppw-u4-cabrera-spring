@@ -1,0 +1,5 @@
+spring:
+    application:
+        name: fundamentos01
+        # port: 9000
+        # serve_url: "Dsfdsafa"
