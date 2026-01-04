@@ -8,18 +8,19 @@ import org.springframework.stereotype.Service;
 import ec.edu.ups.icc.fundamentos01.products.dtos.ProductsResponseDto;
 import ec.edu.ups.icc.fundamentos01.products.dtos.UpdateProductsDto;
 import ec.edu.ups.icc.fundamentos01.products.entities.ProductsEntity;
-import ec.edu.ups.icc.fundamentos01.exceptions.ResourceAlreadyExistsException;
+import ec.edu.ups.icc.fundamentos01.exceptions.domain.ConflictException;
+import ec.edu.ups.icc.fundamentos01.exceptions.domain.NotFoundException;
 import ec.edu.ups.icc.fundamentos01.products.dtos.CreateProductsDto;
 import ec.edu.ups.icc.fundamentos01.products.dtos.PartialUpdateProductsDto;
 import ec.edu.ups.icc.fundamentos01.products.mappers.ProductsMapper;
 import ec.edu.ups.icc.fundamentos01.products.models.Product;
 import ec.edu.ups.icc.fundamentos01.products.repositories.ProductsRepository;
 
-
 @Service
-public class ProductServiceImpl implements ProductService{
+public class ProductServiceImpl implements ProductService {
 
     private final ProductsRepository productsRepo;
+
     public ProductServiceImpl(ProductsRepository productsRepo) {
         this.productsRepo = productsRepo;
     }
@@ -47,7 +48,7 @@ public class ProductServiceImpl implements ProductService{
 
     // Forma iterativa tradicional
     @Override
-        public List<ProductsResponseDto> findAll() {
+    public List<ProductsResponseDto> findAll() {
 
         // Lista final que se devolverá al controlador
         List<ProductsResponseDto> response = new ArrayList<>();
@@ -77,16 +78,16 @@ public class ProductServiceImpl implements ProductService{
         return productsRepo.findById((long) id)
                 .map(Product::fromEntity)
                 .map(Product::toResponseDto)
-                .orElseThrow(() -> new IllegalStateException("Producto no encontrado"));
+                .orElseThrow(() -> new NotFoundException("Producto con id: " + id + " no encontrado"));
     }
 
     @Override
-     public ProductsResponseDto create(CreateProductsDto dto) {
+    public ProductsResponseDto create(CreateProductsDto dto) {
         // Validar que el nombre no exista ya ANTES de intentar insertar
         if (productsRepo.findByName(dto.name).isPresent()) {
-            throw new ResourceAlreadyExistsException("El nombre: '" + dto.name + "' ya está registrado");
+            throw new ConflictException("El nombre: '" + dto.name + "' ya está registrado");
         }
-        
+
         return Optional.of(dto)
                 // DTO → Domain
                 .map(ProductsMapper::fromCreateDto)
@@ -102,7 +103,7 @@ public class ProductServiceImpl implements ProductService{
                 // Domain → DTO
                 .map(Product::toResponseDto)
 
-                .orElseThrow(() -> new IllegalStateException("Error al crear el producto"));
+                .orElseThrow(() -> new ConflictException("Error al crear el producto" + dto));
     }
 
     @Override
@@ -119,18 +120,18 @@ public class ProductServiceImpl implements ProductService{
 
                 // Persistencia
                 .map(productsRepo::save)
-                          // Entity → Domain
+                // Entity → Domain
                 .map(Product::fromEntity)
 
-                             // Domain → DTO
+                // Domain → DTO
                 .map(Product::toResponseDto)
 
                 // Error controlado si no existe
-                .orElseThrow(() -> new IllegalStateException("Producto no encontrado"));
+                .orElseThrow(() -> new NotFoundException("Producto con id: " + id + " no encontrado"));
     }
 
     @Override
-     public ProductsResponseDto partialUpdate(int id, PartialUpdateProductsDto dto) {
+    public ProductsResponseDto partialUpdate(int id, PartialUpdateProductsDto dto) {
 
         return productsRepo.findById((long) id)
                 // Entity → Domain
@@ -143,25 +144,25 @@ public class ProductServiceImpl implements ProductService{
 
                 // Persistencia
                 .map(productsRepo::save)
-                              // Entity → Domain
+                // Entity → Domain
                 .map(Product::fromEntity)
 
                 // Domain → DTO
                 .map(Product::toResponseDto)
 
                 // Error si no existe
-                .orElseThrow(() -> new IllegalStateException("Producto no encontrado"));
+                .orElseThrow(() -> new NotFoundException("Producto con id: " + id + " no encontrado"));
     }
+
     @Override
     public void delete(int id) {
-          // Verifica existencia y elimina
+        // Verifica existencia y elimina
         productsRepo.findById((long) id)
-        .ifPresentOrElse(
-            productsRepo::delete,
-            () -> {
-                throw new IllegalStateException("Producto no encontrado");
-            }
-        );
+                .ifPresentOrElse(
+                        productsRepo::delete,
+                        () -> {
+                            throw new NotFoundException("Producto con id: " + id + " no encontrado");
+                        });
     }
 
 }

@@ -6,7 +6,8 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
-import ec.edu.ups.icc.fundamentos01.exceptions.ResourceAlreadyExistsException;
+import ec.edu.ups.icc.fundamentos01.exceptions.domain.ConflictException;
+import ec.edu.ups.icc.fundamentos01.exceptions.domain.NotFoundException;
 import ec.edu.ups.icc.fundamentos01.users.dtos.CreateUserDto;
 import ec.edu.ups.icc.fundamentos01.users.dtos.PartialUpdateUserDto;
 import ec.edu.ups.icc.fundamentos01.users.dtos.UpdateUserDto;
@@ -24,26 +25,6 @@ public class UserServiceImpl implements UserService {
         this.userRepo = userRepo;
     }
 
-    // Actualizar código de los métodos para usar userRepo
-    //
-    // @Override
-    // public List<UserResponseDto> findAll() {
-
-    // // 1. El repositorio devuelve entidades JPA (UserEntity)
-    // return userRepo.findAll()
-    // .stream()
-
-    // // 2. Cada UserEntity se transforma en un modelo de dominio User
-    // // Aquí se desacopla la capa de persistencia de la lógica de negocio
-    // .map(User::fromEntity)
-
-    // // 3. El modelo de dominio se convierte en DTO de respuesta
-    // // Solo se exponen los campos permitidos por la API
-    // .map(UserMapper::toResponse)
-
-    // // 4. Se recopila el resultado final como una lista de DTOs
-    // .toList();
-    // }
 
     // Forma iterativa tradicional
     @Override
@@ -76,14 +57,14 @@ public class UserServiceImpl implements UserService {
         return userRepo.findById((long) id)
                 .map(User::fromEntity)
                 .map(UserMapper::toResponse)
-                .orElseThrow(() -> new IllegalStateException("Usuario no encontrado"));
+                .orElseThrow(() -> new NotFoundException("Usuario con id: " + id + " no encontrado"));
     }
 
     @Override
     public UserResponseDto create(CreateUserDto dto) {
         // Validar que el email no exista ya ANTES de intentar insertar
-        if (userRepo.findByEmail(dto.email).isPresent()) {
-            throw new ResourceAlreadyExistsException("El email '" + dto.email + "' ya está registrado");
+        if (userRepo.findByEmail(dto.email()).isPresent()) {
+            throw new ConflictException("El email '" + dto.email() + "' ya está registrado");
         }
 
         return Optional.of(dto)
@@ -92,7 +73,7 @@ public class UserServiceImpl implements UserService {
                 .map(userRepo::save)
                 .map(User::fromEntity)
                 .map(UserMapper::toResponse)
-                .orElseThrow(() -> new IllegalStateException("Error al crear el usuario"));
+                .orElseThrow(() -> new ConflictException("Error al crear el usuario" + dto));
     }
 
     @Override
@@ -113,7 +94,7 @@ public class UserServiceImpl implements UserService {
                 .map(UserMapper::toResponse)
 
                 // Error controlado si no existe
-                .orElseThrow(() -> new IllegalStateException("Usuario no encontrado"));
+                .orElseThrow(() -> new NotFoundException("Usuario con id: " + id + " no encontrado"));
     }
 
     @Override
@@ -139,7 +120,7 @@ public class UserServiceImpl implements UserService {
                 .map(UserMapper::toResponse)
 
                 // Error si no existe
-                .orElseThrow(() -> new IllegalStateException("Usuario no encontrado"));
+                .orElseThrow(() -> new NotFoundException("Usuario no encontrado con id: " + id));
     }
 
     @Override
@@ -149,7 +130,7 @@ public class UserServiceImpl implements UserService {
                 .ifPresentOrElse(
                         userRepo::delete,
                         () -> {
-                            throw new IllegalStateException("Usuario no encontrado");
+                            throw new NotFoundException("Usuario con id: " + id + " no encontrado");
                         });
     }
 }
