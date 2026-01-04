@@ -16,6 +16,7 @@ public class ProductsMapper {
 
     /**
      * Convierte un Product a un DTO de respuesta
+     * 
      * @param product Modelo de dominio
      * @return DTO con los datos públicos del producto
      */
@@ -25,8 +26,9 @@ public class ProductsMapper {
         dto.name = product.getName();
         dto.price = product.getPrice();
         dto.stock = product.getStock();
-        dto.createdAt = product.getCreatedAt();
-        dto.updatedAt = product.getUpdatedAt();
+        dto.createdAt = product.getCreatedAt() != null
+                ? product.getCreatedAt().toString()
+                : null;
         return dto;
     }
 
