@@ -18,51 +18,47 @@ import ec.edu.ups.icc.fundamentos01.products.dtos.ProductsResponseDto;
 import ec.edu.ups.icc.fundamentos01.products.dtos.UpdateProductsDto;
 import ec.edu.ups.icc.fundamentos01.products.services.ProductService;
 
-
 @RestController
 @RequestMapping("/api/products")
 public class ProductsController {
 
-private final ProductService service;
+    private final ProductService productService;
 
-    public ProductsController(ProductService service) {
-        this.service = service;
+    public ProductsController(ProductService productService) {
+        this.productService = productService;
     }
 
     @GetMapping
     public List<ProductsResponseDto> findAll() {
-        return service.findAll();
+        return productService.findAll();
     }
 
     @GetMapping("/{id}")
-    public Object findOne(@PathVariable int id) {
-        return service.findOne(id);
+    public ProductsResponseDto findOne(@PathVariable("id") int id) {
+        return productService.findOne(id);
     }
 
     @PostMapping
-    public ProductsResponseDto create(@RequestBody CreateProductsDto dto) {
-        return service.create(dto);
+     public ProductsResponseDto create(@RequestBody CreateProductsDto dto) {
+        return productService.create(dto);
     }
 
     @PutMapping("/{id}")
-    public Object update(@PathVariable int id, @RequestBody UpdateProductsDto dto) {
-        return service.update(id, dto);
+    public ProductsResponseDto update(@PathVariable("id") int id, @RequestBody UpdateProductsDto dto) {
+        return productService.update(id, dto);
     }
 
     @PatchMapping("/{id}")
-    public Object partialUpdate(@PathVariable int id, @RequestBody PartialUpdateProductsDto dto) {
-        return service.partialUpdate(id, dto);
+    public ProductsResponseDto partialUpdate(@PathVariable("id") int id, @RequestBody PartialUpdateProductsDto dto) {
+        return productService.partialUpdate(id, dto);
     }
 
     @DeleteMapping("/{id}")
-    public Object delete(@PathVariable int id) {
-        return service.delete(id);
+    public void delete(@PathVariable("id") int id) {
+        productService.delete(id);
     }
 
-    
 }
-
-
 
 // package ec.edu.ups.icc.fundamentos01.products.controllers;
 
@@ -86,97 +82,95 @@ private final ProductService service;
 // import ec.edu.ups.icc.fundamentos01.products.entities.Products;
 // import ec.edu.ups.icc.fundamentos01.products.mappers.ProductsMapper;
 
-
-
 // @RestController
 // @RequestMapping("/api/products")
 // public class ProductsController {
 
-//     private List<Products> products = new ArrayList<>();
-//     private int currentId = 1;
+// private List<Products> products = new ArrayList<>();
+// private int currentId = 1;
 
-//     @GetMapping
-//     public List<ProductsResponseDto> findAll() {
+// @GetMapping
+// public List<ProductsResponseDto> findAll() {
 
+// // Programación funcional para mapear cada User a UserResponseDto
+// return products.stream()
+// .map(ProductsMapper::toResponse)
+// .toList();
+// }
 
-//         // Programación funcional para mapear cada User a UserResponseDto
-//         return products.stream()
-//                 .map(ProductsMapper::toResponse)
-//                 .toList();
-//     }
+// @GetMapping("/{id}")
+// public Object findOne(@PathVariable int id) {
 
-//      @GetMapping("/{id}")
-//     public Object findOne(@PathVariable int id) {
+// // Programación tradicional iterativa para mapear cada User a UserResponseDto
+// // Busqueda Lineal
+// for (Products p : products) {
+// if (p.getId() == id) {
+// return ProductsMapper.toResponse(p);
+// }
+// }
+// return new Object() {
+// public String error = "User not found";
+// };
 
-//         // Programación tradicional iterativa para mapear cada User a UserResponseDto
-//         // Busqueda Lineal
-//         for (Products p : products) {
-//             if (p.getId() == id) {
-//                 return ProductsMapper.toResponse(p);
-//             }
-//         }
-//         return new Object() {
-//             public String error = "User not found";
-//         };
+// }
 
+// @PostMapping
+// public ProductsResponseDto create(@RequestBody CreateProductsDto dto) {
+// Products p = ProductsMapper.toEntity(currentId++, dto.name, dto.categoria);
+// products.add(p);
+// return ProductsMapper.toResponse(p);
+// }
 
-//     }
+// @PutMapping("/{id}")
+// public Object update(@PathVariable int id, @RequestBody UpdateProductsDto
+// dto) {
 
-//     @PostMapping
-//     public ProductsResponseDto create(@RequestBody CreateProductsDto dto) {
-//         Products p = ProductsMapper.toEntity(currentId++, dto.name, dto.categoria);
-//         products.add(p);
-//         return ProductsMapper.toResponse(p);
-//     }
+// // Programacion funcional
+// Products p = products.stream().filter(u -> u.getId() ==
+// id).findFirst().orElse(null);
+// if (p == null)
+// return new Object() {
+// public String error = "User not found";
+// };
 
-//     @PutMapping("/{id}")
-//     public Object update(@PathVariable int id, @RequestBody UpdateProductsDto dto) {
+// p.setName(dto.name);
+// p.setCategoria(dto.categoria);
 
+// return ProductsMapper.toResponse(p);
+// }
 
-//         // Programacion funcional
-//         Products p = products.stream().filter(u -> u.getId() == id).findFirst().orElse(null);
-//         if (p == null)
-//             return new Object() {
-//                 public String error = "User not found";
-//             };
+// @PatchMapping("/{id}")
+// public Object partialUpdate(@PathVariable int id, @RequestBody
+// PartialUpdateProductsDto dto) {
 
-//         p.setName(dto.name);
-//         p.setCategoria(dto.categoria);
+// // Programacion funcional
+// Products p = products.stream().filter(u -> u.getId() ==
+// id).findFirst().orElse(null);
+// if (p == null)
+// return new Object() {
+// public String error = "Product not found";
+// };
 
-//         return ProductsMapper.toResponse(p);
-//     }
+// if (dto.name != null)
+// p.setName(dto.name);
+// if (dto.categoria != null)
+// p.setCategoria (dto.categoria);
 
-//      @PatchMapping("/{id}")
-//     public Object partialUpdate(@PathVariable int id, @RequestBody PartialUpdateProductsDto dto) {
+// return ProductsMapper.toResponse(p);
+// }
 
-        
-//         // Programacion funcional
-//         Products p = products.stream().filter(u -> u.getId() == id).findFirst().orElse(null);
-//         if (p == null)
-//             return new Object() {
-//                 public String error = "Product not found";
-//             };
+// @DeleteMapping("/{id}")
+// public Object delete(@PathVariable int id) {
 
-//         if (dto.name != null)
-//             p.setName(dto.name);
-//         if (dto.categoria != null)
-//             p.setCategoria (dto.categoria);
+// // Programacion funcional
+// boolean exists = products.removeIf(p -> p.getId() == id);
+// if (!exists)
+// return new Object() {
+// public String error = "Product not found";
+// };
 
-//         return ProductsMapper.toResponse(p);
-//     }
-
-//     @DeleteMapping("/{id}")
-//     public Object delete(@PathVariable int id) {
-
-//         // Programacion funcional
-//         boolean exists = products.removeIf(p -> p.getId() == id);
-//         if (!exists)
-//             return new Object() {
-//                 public String error = "Product not found";
-//             };
-
-//         return new Object() {
-//             public String message = "Deleted successfully";
-//         };
-//     }
+// return new Object() {
+// public String message = "Deleted successfully";
+// };
+// }
 // }

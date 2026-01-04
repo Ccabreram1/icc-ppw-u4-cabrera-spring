@@ -2,6 +2,7 @@ package ec.edu.ups.icc.fundamentos01.users.controllers;
 
 import java.util.List;
 
+
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -11,56 +12,53 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
 import ec.edu.ups.icc.fundamentos01.users.dtos.CreateUserDto;
 import ec.edu.ups.icc.fundamentos01.users.dtos.PartialUpdateUserDto;
 import ec.edu.ups.icc.fundamentos01.users.dtos.UpdateUserDto;
 import ec.edu.ups.icc.fundamentos01.users.dtos.UserResponseDto;
-
 import ec.edu.ups.icc.fundamentos01.users.services.UserService;
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/users")
 public class UsersController {
 
+    private final UserService userService;
 
-     private final UserService service;
-
-    // Inyección de dependencias por constructor
-    public UsersController(UserService service) {
-        this.service = service;
+    public UsersController(UserService userService) {
+        this.userService = userService;
     }
 
-    @GetMapping
+        @GetMapping
     public List<UserResponseDto> findAll() {
-        return service.findAll();
+        return userService.findAll();
     }
 
-    @GetMapping("/{id}")
-    public Object findOne(@PathVariable int id) {
-        return service.findOne(id);
+        @GetMapping("/{id}")
+    public Object findOne(@PathVariable("id") int id) {
+        return userService.findOne(id);
     }
 
-    @PostMapping
+        @PostMapping
     public UserResponseDto create(@RequestBody CreateUserDto dto) {
-        return service.create(dto);
+        return userService.create(dto);
     }
 
-    @PutMapping("/{id}")
-    public Object update(@PathVariable int id, @RequestBody UpdateUserDto dto) {
-        return service.update(id, dto);
+        @PutMapping("/{id}")
+    public Object update(@PathVariable("id") int id, @RequestBody UpdateUserDto dto) {
+        return userService.update(id, dto);
     }
 
-    @PatchMapping("/{id}")
-    public Object partialUpdate(
-            @PathVariable int id,
-            @RequestBody PartialUpdateUserDto dto) {
-        return service.partialUpdate(id, dto);
+
+       @PatchMapping("/{id}")
+    public Object partialUpdate(@PathVariable("id") int id, @RequestBody PartialUpdateUserDto dto) {
+        return userService.partialUpdate(id, dto);
     }
+
 
     @DeleteMapping("/{id}")
-    public Object delete(@PathVariable int id) {
-        return service.delete(id);
+    public void delete(@PathVariable("id") int id) {
+        userService.delete(id);
     }
 
 }
-
