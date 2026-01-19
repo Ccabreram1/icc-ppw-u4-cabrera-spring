@@ -1,8 +1,13 @@
 package ec.edu.ups.icc.fundamentos01.users.entities;
 
+import java.util.List;
+
+import ec.edu.ups.icc.fundamentos01.categories.entity.ProductEntity;
 import ec.edu.ups.icc.fundamentos01.core.entities.BaseModel;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
@@ -17,6 +22,9 @@ public class UserEntity extends BaseModel {
 
     @Column(nullable = false)
     private String password;
+
+    @OneToMany(mappedBy ="owner",fetch = FetchType.LAZY)
+    private List<ProductEntity> products;
 
     public String getName() {
         return name;

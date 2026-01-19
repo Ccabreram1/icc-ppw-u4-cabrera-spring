@@ -6,8 +6,12 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
+import ec.edu.ups.icc.fundamentos01.categories.entity.ProductEntity;
 import ec.edu.ups.icc.fundamentos01.exceptions.domain.ConflictException;
 import ec.edu.ups.icc.fundamentos01.exceptions.domain.NotFoundException;
+import ec.edu.ups.icc.fundamentos01.products.dtos.ProductResponseDto;
+import ec.edu.ups.icc.fundamentos01.products.mappers.ProductsMapper;
+import ec.edu.ups.icc.fundamentos01.products.repositories.ProductRepository;
 import ec.edu.ups.icc.fundamentos01.users.dtos.CreateUserDto;
 import ec.edu.ups.icc.fundamentos01.users.dtos.PartialUpdateUserDto;
 import ec.edu.ups.icc.fundamentos01.users.dtos.UpdateUserDto;
@@ -20,11 +24,12 @@ import ec.edu.ups.icc.fundamentos01.users.repositories.UserRepository;
 @Service
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepo;
+    private final ProductRepository productRepository;
 
-    public UserServiceImpl(UserRepository userRepo) {
+    public UserServiceImpl(UserRepository userRepo, ProductRepository productRepository) {
+        this.productRepository = productRepository;
         this.userRepo = userRepo;
     }
-
 
     // Forma iterativa tradicional
     @Override
@@ -53,8 +58,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserResponseDto findOne(int id) {
-        return userRepo.findById((long) id)
+    public UserResponseDto findOne(Long id) {
+        return userRepo.findById(id)
                 .map(User::fromEntity)
                 .map(UserMapper::toResponse)
                 .orElseThrow(() -> new NotFoundException("Usuario con id: " + id + " no encontrado"));
@@ -74,10 +79,16 @@ public class UserServiceImpl implements UserService {
                 .map(User::fromEntity)
                 .map(UserMapper::toResponse)
                 .orElseThrow(() -> new ConflictException("Error al crear el usuario" + dto));
+
+        // User user = User.fromDto(dto);
+
+        // UserEntity saved = userRepo.save(user.toEntity());
+
+        // return UserMapper.toResponse(User.fromEntity(saved));
     }
 
     @Override
-    public UserResponseDto update(int id, UpdateUserDto dto) {
+    public UserResponseDto update(Long id, UpdateUserDto dto) {
         return userRepo.findById((long) id)
                 // Entity → Domain
                 .map(User::fromEntity)
@@ -98,7 +109,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserResponseDto partialUpdate(int id, PartialUpdateUserDto dto) {
+    public UserResponseDto partialUpdate(Long id, PartialUpdateUserDto dto) {
 
         return userRepo.findById((long) id)
                 // Entity → Domain
@@ -124,7 +135,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void delete(int id) {
+    public void delete(Long id) {
         // Verifica existencia y elimina
         userRepo.findById((long) id)
                 .ifPresentOrElse(
@@ -133,4 +144,51 @@ public class UserServiceImpl implements UserService {
                             throw new NotFoundException("Usuario con id: " + id + " no encontrado");
                         });
     }
+
+    @Override
+    public List<ProductResponseDto> getProductsByUserId(Long userId) {
+
+        // 1. Verificar que el usuario exista
+        userRepo.findById(userId)
+                .orElseThrow(() -> new NotFoundException(
+                        "Usuario con id: " + userId + " no encontrado"));
+
+        // 2. Consultar productos desde el repositorio de productos
+        return productRepository.findByOwnerId(userId)
+                .stream()
+                .map(product -> new ProductResponseDto(
+                        product.getId(),
+                        product.getName(),
+                        product.getPrice(),
+                        product.getDescription()))
+                .toList();
+    }
+
+    @Override
+    public List<ProductResponseDto> getUserProductsWithFilters(Long id, String name, Double minPrice, Double maxPrice, Long categoryId){
+                List<ProductEntity> products =
+                userRepo.findByOwnerWithFilter(
+                        id,
+                        name,
+                        minPrice,
+                        maxPrice,
+                        categoryId
+                );
+
+                return productRepository.findByOwnerWithFilter(id,
+                        name,
+                        minPrice,
+                        maxPrice,
+                        categoryId)
+                .stream()
+                .map(product -> new ProductResponseDto(
+                        product.getId(),
+                        product.getName(),
+                        product.getPrice(),
+                        product.getDescription()))
+                .toList();
+        
+    }
+
+
 }

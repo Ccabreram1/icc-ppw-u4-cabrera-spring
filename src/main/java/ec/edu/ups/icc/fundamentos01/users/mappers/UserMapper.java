@@ -14,7 +14,7 @@ public class UserMapper {
      */
     public static UserResponseDto toResponse(User user) {
         UserResponseDto dto = new UserResponseDto();
-        dto.id = user.getId();
+        dto.id = (long) user.getId();
         dto.name = user.getName();
         dto.email = user.getEmail();
         dto.createdAt = user.getCreatedAt().toString();

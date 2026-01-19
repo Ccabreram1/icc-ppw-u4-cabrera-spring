@@ -27,7 +27,6 @@ import ec.edu.ups.icc.fundamentos01.users.repositories.UserRepository;
 
 @Service
 public class ProductServiceImpl implements ProductService {
-
     private final ProductRepository productsRepo;
     private final UserRepository userRepo;
     private final CategoryRepossitory categoryRepo;
@@ -78,7 +77,10 @@ public class ProductServiceImpl implements ProductService {
 
         // 3. CONVERTIR A ENTIDAD CON RELACIONES
         ProductsEntity entity = product.toEntity(owner);
-        entity.setCategories(categories);
+        // agregar categorías UNA POR UNA
+        for (CategoryEntity category : categories) {
+            entity.addCategory(category);
+        }
 
         // 4. PERSISTIR
         ProductsEntity saved = productsRepo.save(entity);
@@ -121,7 +123,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public List<ProductResponseDto> findByUserId(Long userId) {
 
-        // Validar que el usuario existe
+        //Validar que el usuario existe
         if (!userRepo.existsById(userId)) {
             throw new NotFoundException("Usuario no encontrado con ID: " + userId);
         }
@@ -140,11 +142,10 @@ public class ProductServiceImpl implements ProductService {
         // throw new NotFoundException("Categoría no encontrada con ID: " + categoryId);
         // }
 
-        // return productRepo.findByCategoryId(categoryId)
+        // return productsRepo.findByCategoryId(categoryId)
         // .stream()
         // .map(this::toResponseDto)
         // .toList();
-
         return null;
     }
 
@@ -260,6 +261,7 @@ public class ProductServiceImpl implements ProductService {
             categoryDto.id = categoryEntity.getId();
             categoryDto.name = categoryEntity.getName();
             categoryDto.description = categoryEntity.getDescription();
+            
             categories.add(categoryDto);
         }
 
@@ -292,5 +294,4 @@ public class ProductServiceImpl implements ProductService {
 
         return categories;
     }
-
 }

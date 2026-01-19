@@ -2,7 +2,6 @@ package ec.edu.ups.icc.fundamentos01.products.controllers;
 
 import java.util.List;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,9 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import ec.edu.ups.icc.fundamentos01.products.dtos.CreateProductDto;
 import ec.edu.ups.icc.fundamentos01.products.dtos.PartialUpdateProductsDto;
 import ec.edu.ups.icc.fundamentos01.products.dtos.ProductResponseDto;
-import ec.edu.ups.icc.fundamentos01.products.dtos.SecureUpdateProductDto;
 import ec.edu.ups.icc.fundamentos01.products.dtos.UpdateProductDto;
-import ec.edu.ups.icc.fundamentos01.products.dtos.ValidateProductNameDto;
 import ec.edu.ups.icc.fundamentos01.products.services.ProductService;
 import jakarta.validation.Valid;
 
@@ -27,7 +24,7 @@ import jakarta.validation.Valid;
 @RequestMapping("/api/products")
 public class ProductsController {
 
-    private ProductService productService;
+private ProductService productService;
 
     public ProductsController(ProductService productService) {
         this.productService = productService;
@@ -35,12 +32,16 @@ public class ProductsController {
 
     @GetMapping
     public List<ProductResponseDto> findAll() {
-        return productService.findAll();
+        List<ProductResponseDto> products = productService.findAll();
+        return (List<ProductResponseDto>) ResponseEntity.ok(products);
+        // return productService.findAll();
     }
 
     @GetMapping("/{id}")
-    public ProductResponseDto findOne(@PathVariable("id") Long id) {
-        return productService.findOne(id);
+    public ResponseEntity<ProductResponseDto> findOne(@PathVariable("id") Long id) {
+        ProductResponseDto product = productService.findOne(id);
+        return ResponseEntity.ok(product);
+        // return productService.findOne(id);
     }
 
     @PostMapping
@@ -49,8 +50,11 @@ public class ProductsController {
     }
 
     @PutMapping("/{id}")
-    public ProductResponseDto update(@PathVariable("id") Long id, @Valid @RequestBody UpdateProductDto dto) {
-        return productService.update(id, dto);
+    public ResponseEntity<ProductResponseDto> update(@PathVariable("id") Long id,
+            @Valid @RequestBody UpdateProductDto dto) {
+        ProductResponseDto updated = productService.update(id, dto);
+        return ResponseEntity.ok(updated);
+        // return productService.update(id, dto);
     }
 
     @PatchMapping("/{id}")
@@ -59,22 +63,18 @@ public class ProductsController {
         return productService.partialUpdate(id, dto);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable("id") Long id) {
-        productService.delete(id);
-        return ResponseEntity.noContent().build();
-    }
+    // @PostMapping("/validate-name")
+    // public ResponseEntity<Boolean> validateName(@RequestBody ValidateProductsDto
+    // dto) {
+    // productService.validateName(dto.id, dto.name);
+    // return ResponseEntity.ok(true);
+    // }
 
-    @PostMapping("/validate-name")
-    public ResponseEntity<Boolean> validateName(@RequestBody ValidateProductNameDto dto) {
-        productService.validateName(dto.id, dto.name);
-        return ResponseEntity.ok(true);
-    }
-
-    @PutMapping("/{id}/secure-update")
-    public ProductResponseDto secureUpdate(@PathVariable("id") int id, @RequestBody SecureUpdateProductDto dto) {
-        return productService.secureUpdate(id, dto);
-    }
+    // @PutMapping("/{id}/secure-update")
+    // public ProductResponseDto secureUpdate(@PathVariable("id") int id,
+    // @RequestBody SecureUpdateProductDto dto) {
+    // return productService.secureUpdate(id, dto);
+    // }
 
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<ProductResponseDto>> findByUserId(@PathVariable("userId") Long userId) {
@@ -86,5 +86,11 @@ public class ProductsController {
     public ResponseEntity<List<ProductResponseDto>> findByCategoryId(@PathVariable("categoryId") Long categoryId) {
         List<ProductResponseDto> products = productService.findByCategoryId(categoryId);
         return ResponseEntity.ok(products);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable("id") Long id) {
+        productService.delete(id);
+        return ResponseEntity.noContent().build();
     }
 }
