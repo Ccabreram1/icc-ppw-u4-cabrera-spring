@@ -1,0 +1,89 @@
+package ec.edu.ups.icc.fundamentos01.categories.models;
+
+import ec.edu.ups.icc.fundamentos01.categories.dtos.CategoriesResponseDto;
+import ec.edu.ups.icc.fundamentos01.categories.dtos.CreateCategoriesDto;
+import ec.edu.ups.icc.fundamentos01.categories.entity.CategoryEntity;
+
+public class Category {
+    private Long id;
+    private String name;
+    private String description;
+
+
+    public Category() {
+    }
+
+
+    public Category(String name, String description) {
+        this.name = name;
+        this.description = description;
+    }
+
+
+    public Long getId() {
+        return id;
+    }
+
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+
+    public String getName() {
+        return name;
+    }
+
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+
+    public String getDescription() {
+        return description;
+    }
+
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+
+    //Metodos factory 
+
+    public static Category fromCategory(CreateCategoriesDto dto){
+        return new Category(dto.name, dto.description);
+    }
+
+    public static Category fromEntity(CategoryEntity entity){
+        Category category = new Category(entity.getName(), entity.getDescription());
+        category.id = entity.getId();
+        return category;
+    }
+
+
+
+    public CategoryEntity toEntity(){
+        CategoryEntity entity= new CategoryEntity();
+
+        if (this.id != null && this.id>0){
+            entity.setId(id);
+        }
+        entity.setName(name);
+        entity.setDescription(description);
+
+        return entity;
+    }
+
+
+    public CategoriesResponseDto tResponseDto(){
+        CategoriesResponseDto dto = new CategoriesResponseDto();
+        dto.setId(this.id);
+        dto.setName(this.name);
+        dto.setDescription(this.description);
+
+        return dto;
+    }
+    
+}

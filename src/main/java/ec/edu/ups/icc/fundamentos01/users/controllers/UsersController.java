@@ -22,7 +22,7 @@ import ec.edu.ups.icc.fundamentos01.users.services.UserService;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/api/users")
 public class UsersController {
 
     private final UserService userService;

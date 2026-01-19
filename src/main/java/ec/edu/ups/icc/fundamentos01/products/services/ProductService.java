@@ -2,22 +2,39 @@ package ec.edu.ups.icc.fundamentos01.products.services;
 
 import java.util.List;
 
-import ec.edu.ups.icc.fundamentos01.products.dtos.CreateProductsDto;
+import ec.edu.ups.icc.fundamentos01.products.dtos.CreateProductDto;
 import ec.edu.ups.icc.fundamentos01.products.dtos.PartialUpdateProductsDto;
-import ec.edu.ups.icc.fundamentos01.products.dtos.ProductsResponseDto;
-import ec.edu.ups.icc.fundamentos01.products.dtos.UpdateProductsDto;
+import ec.edu.ups.icc.fundamentos01.products.dtos.ProductResponseDto;
+import ec.edu.ups.icc.fundamentos01.products.dtos.SecureUpdateProductDto;
+import ec.edu.ups.icc.fundamentos01.products.dtos.UpdateProductDto;
 
 public interface ProductService {
 
-    List<ProductsResponseDto> findAll();
+    List<ProductResponseDto> findAll();
 
-    ProductsResponseDto findOne(int id);
+    ProductResponseDto findOne(Long id);
 
-    ProductsResponseDto create(CreateProductsDto dto);
+    ProductResponseDto create(CreateProductDto dto);
 
-    ProductsResponseDto update(int id, UpdateProductsDto dto);
+    ProductResponseDto update(Long id, UpdateProductDto dto);
 
-    ProductsResponseDto partialUpdate(int id, PartialUpdateProductsDto dto);
+    ProductResponseDto partialUpdate(Long id, PartialUpdateProductsDto dto);
 
-    void delete(int id);
+    void delete(Long id);
+
+    boolean validateName(Long id, String name);
+
+    ProductResponseDto secureUpdate(int id, SecureUpdateProductDto dto);
+
+    List<ProductResponseDto> findByUserId(Long userId);
+
+    List<ProductResponseDto> findByCategoryId(Long categoryId);
+
+
+    
+
+
+
+     
+
 }

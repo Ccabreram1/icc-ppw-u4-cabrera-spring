@@ -14,10 +14,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import ec.edu.ups.icc.fundamentos01.products.dtos.CreateProductsDto;
+import ec.edu.ups.icc.fundamentos01.products.dtos.CreateProductDto;
 import ec.edu.ups.icc.fundamentos01.products.dtos.PartialUpdateProductsDto;
-import ec.edu.ups.icc.fundamentos01.products.dtos.ProductsResponseDto;
-import ec.edu.ups.icc.fundamentos01.products.dtos.UpdateProductsDto;
+import ec.edu.ups.icc.fundamentos01.products.dtos.ProductResponseDto;
+import ec.edu.ups.icc.fundamentos01.products.dtos.SecureUpdateProductDto;
+import ec.edu.ups.icc.fundamentos01.products.dtos.UpdateProductDto;
+import ec.edu.ups.icc.fundamentos01.products.dtos.ValidateProductNameDto;
 import ec.edu.ups.icc.fundamentos01.products.services.ProductService;
 import jakarta.validation.Valid;
 
@@ -25,43 +27,64 @@ import jakarta.validation.Valid;
 @RequestMapping("/api/products")
 public class ProductsController {
 
-    private final ProductService productService;
+    private ProductService productService;
 
     public ProductsController(ProductService productService) {
         this.productService = productService;
     }
 
     @GetMapping
-    public List<ProductsResponseDto> findAll() {
+    public List<ProductResponseDto> findAll() {
         return productService.findAll();
     }
 
     @GetMapping("/{id}")
-    public ProductsResponseDto findOne(@PathVariable("id") int id) {
+    public ProductResponseDto findOne(@PathVariable("id") Long id) {
         return productService.findOne(id);
     }
 
     @PostMapping
-
-    public ResponseEntity<ProductsResponseDto> create(
-            @Valid @RequestBody CreateProductsDto dto) {
-        ProductsResponseDto created = productService.create(dto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(created);
+    public ProductResponseDto create(@Valid @RequestBody CreateProductDto dto) {
+        return productService.create(dto);
     }
 
     @PutMapping("/{id}")
-    public ProductsResponseDto update(@PathVariable("id") int id, @RequestBody UpdateProductsDto dto) {
+    public ProductResponseDto update(@PathVariable("id") Long id, @Valid @RequestBody UpdateProductDto dto) {
         return productService.update(id, dto);
     }
 
     @PatchMapping("/{id}")
-    public ProductsResponseDto partialUpdate(@PathVariable("id") int id, @RequestBody PartialUpdateProductsDto dto) {
+    public ProductResponseDto partialUpdate(@PathVariable("id") Long id,
+            @Valid @RequestBody PartialUpdateProductsDto dto) {
         return productService.partialUpdate(id, dto);
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable("id") int id) {
+    public ResponseEntity<Void> delete(@PathVariable("id") Long id) {
         productService.delete(id);
+        return ResponseEntity.noContent().build();
     }
 
+    @PostMapping("/validate-name")
+    public ResponseEntity<Boolean> validateName(@RequestBody ValidateProductNameDto dto) {
+        productService.validateName(dto.id, dto.name);
+        return ResponseEntity.ok(true);
+    }
+
+    @PutMapping("/{id}/secure-update")
+    public ProductResponseDto secureUpdate(@PathVariable("id") int id, @RequestBody SecureUpdateProductDto dto) {
+        return productService.secureUpdate(id, dto);
+    }
+
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<ProductResponseDto>> findByUserId(@PathVariable("userId") Long userId) {
+        List<ProductResponseDto> products = productService.findByUserId(userId);
+        return ResponseEntity.ok(products);
+    }
+
+    @GetMapping("/category/{categoryId}")
+    public ResponseEntity<List<ProductResponseDto>> findByCategoryId(@PathVariable("categoryId") Long categoryId) {
+        List<ProductResponseDto> products = productService.findByCategoryId(categoryId);
+        return ResponseEntity.ok(products);
+    }
 }
