@@ -28,6 +28,7 @@ public class CreateProductDto {
 
     // @NotNull(message = "El ID de la categoría es obligatorio")
     // public Long categoryId;
+    
     @NotNull(message = "Los IDs de las categorías son obligatorios")
     @Size(min = 1, message = "Debe ingresar al menos un ID de categoría")
     public List<Long> categoryIds; //Ingresemos un listado de IDs de categorias [4-2]

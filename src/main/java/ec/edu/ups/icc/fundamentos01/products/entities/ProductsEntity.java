@@ -17,7 +17,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "/api/products")
+@Table(name = "products")
 public class ProductsEntity extends BaseModel {
 
     @Column(nullable = false, length = 150, unique = true)

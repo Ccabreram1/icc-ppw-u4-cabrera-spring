@@ -11,18 +11,16 @@ import org.springframework.stereotype.Repository;
 import ec.edu.ups.icc.fundamentos01.products.entities.ProductsEntity;
 import ec.edu.ups.icc.fundamentos01.users.entities.UserEntity;
 
-
 @Repository
 public interface ProductRepository extends JpaRepository<ProductsEntity, Long> {
 
-Optional<ProductsEntity> findByName(String name);
+        Optional<ProductsEntity> findByName(String name);
 
         /**
          * Encuentra todos los productos de un usuario específico
          * Spring Data JPA genera: SELECT * FROM products WHERE user_id = ?
          */
         List<ProductsEntity> findByOwnerId(Long userId);
-
 
         /**
          * Encuentra todos los productos de una categoría específica
@@ -67,18 +65,28 @@ Optional<ProductsEntity> findByName(String name);
 
         List<ProductsEntity> findByCategoriesIdAndPriceGreaterThan(Long categoryId, Double price);
 
-        @Query("SELECT DISTINCT p FROM ProductsEntity p"+
-                "LEFT JOIN p.categories c "+
-                "WHERE p.owner.id = :userId "+
-                "AND (:name IS NULL OR LOWER(p.name) LIKE LOWER(CONCAT('%', :name, '%')))" +
-                "AND (:minPrice IS NULL OR p.price >= :minPrice)"+
-                "AND (:maxPrice IS NULL OR p.price <= :maxPrice)"+
-                "AND (:categoryId IS NULL OR c.id = :categoryId)"
-        )
+        @Query("""
+                            SELECT DISTINCT p
+                            FROM ProductsEntity p
+                            LEFT JOIN p.categories c
+                            WHERE p.owner.id = :userId
+                              AND (:name IS NULL OR LOWER(p.name) LIKE LOWER(CONCAT('%', :name, '%')))
+                              AND (:minPrice IS NULL OR p.price >= :minPrice)
+                              AND (:maxPrice IS NULL OR p.price <= :maxPrice)
+                              AND (:categoryId IS NULL OR c.id = :categoryId)
+                        """)
         List<ProductsEntity> findByOwnerWithFilter(
-                @Param("userId") Long userId,
-                @Param("name") String name,
-                @Param("minPrice") Double minPrice,
-                @Param("maxProce") Double maxPrice,
-                @Param("categoryId") Long categoryId);
+                        @Param("userId") Long userId,
+                        @Param("name") String name,
+                        @Param("minPrice") Double minPrice,
+                        @Param("maxPrice") Double maxPrice,
+                        @Param("categoryId") Long categoryId);
+
+        @Query("""
+                            SELECT DISTINCT p
+                            FROM ProductsEntity p
+                            LEFT JOIN FETCH p.categories
+                            WHERE p.owner.id = :userId
+                        """)
+        List<ProductsEntity> findByOwnerIdWithCategories(@Param("userId") Long userId);
 }

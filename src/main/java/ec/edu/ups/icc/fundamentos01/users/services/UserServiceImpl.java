@@ -6,11 +6,9 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
-import ec.edu.ups.icc.fundamentos01.categories.entity.ProductEntity;
 import ec.edu.ups.icc.fundamentos01.exceptions.domain.ConflictException;
 import ec.edu.ups.icc.fundamentos01.exceptions.domain.NotFoundException;
 import ec.edu.ups.icc.fundamentos01.products.dtos.ProductResponseDto;
-import ec.edu.ups.icc.fundamentos01.products.mappers.ProductsMapper;
 import ec.edu.ups.icc.fundamentos01.products.repositories.ProductRepository;
 import ec.edu.ups.icc.fundamentos01.users.dtos.CreateUserDto;
 import ec.edu.ups.icc.fundamentos01.users.dtos.PartialUpdateUserDto;
@@ -165,21 +163,22 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<ProductResponseDto> getUserProductsWithFilters(Long id, String name, Double minPrice, Double maxPrice, Long categoryId){
-                List<ProductEntity> products =
-                userRepo.findByOwnerWithFilter(
-                        id,
-                        name,
-                        minPrice,
-                        maxPrice,
-                        categoryId
-                );
+    public List<ProductResponseDto> getProductsByUserIdWithFilters(
+            Long userId,
+            String name,
+            Double minPrice,
+            Double maxPrice,
+            Long categoryId) {
+        userRepo.findById(userId)
+                .orElseThrow(() -> new NotFoundException(
+                        "Usuario con id: " + userId + " no encontrado"));
 
-                return productRepository.findByOwnerWithFilter(id,
-                        name,
-                        minPrice,
-                        maxPrice,
-                        categoryId)
+        return productRepository.findByOwnerWithFilter(
+                userId,
+                name,
+                minPrice,
+                maxPrice,
+                categoryId)
                 .stream()
                 .map(product -> new ProductResponseDto(
                         product.getId(),
@@ -187,8 +186,6 @@ public class UserServiceImpl implements UserService {
                         product.getPrice(),
                         product.getDescription()))
                 .toList();
-        
     }
-
 
 }
